@@ -11,18 +11,25 @@ class Video:
                                                     id=video_id
                                                     ).execute()
         self.__video_id = video_id
-        self.__name = video_response['items'][0]['snippet']['title']
-        self.__url = f"https://www.youtube.com/watch?v={self.__video_id}"
-        self.__view_count = video_response['items'][0]['statistics']['viewCount']
-        self.__likes_count = video_response['items'][0]['statistics']['likeCount']
+        try:
+            self.__title = video_response['items'][0]['snippet']['title']
+            self.__url = f"https://www.youtube.com/watch?v={self.__video_id}"
+            self.__view_count = video_response['items'][0]['statistics']['viewCount']
+            self.__like_count = video_response['items'][0]['statistics']['likeCount']
+
+        except IndexError:
+            self.__title = None
+            self.__url = None
+            self.__view_count = None
+            self.__like_count = None
 
     @property
     def video_id(self):
         return self.__video_id
 
     @property
-    def name(self):
-        return self.__name
+    def title(self):
+        return self.__title
 
     @property
     def url(self):
@@ -33,17 +40,18 @@ class Video:
         return self.__view_count
 
     @property
-    def likes_count(self):
-        return self.__likes_count
+    def like_count(self):
+        return self.__like_count
 
     def __str__(self):
-        return f"{self.__name}"
+        return f"{self.__title}"
 
 
 class PLVideo(Video):
+    api_key: str = os.getenv('YOUTUBE_API_KEY')
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
     def __init__(self, video_id: str, playlist_id: str):
         super().__init__(video_id)
         self.__playlist_id = playlist_id
 
-    def __str__(self):
-        return f"{self.name}"
